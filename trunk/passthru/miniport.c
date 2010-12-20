@@ -996,26 +996,26 @@ Return Value:
         }
 
 	
-	//checkMacResult = CheckMacUDP(pAdapt, Packet);
+	//CompareView 12/17/2010
 	checkMacResult = CheckMac(pAdapt, Packet);
 	//add by xiong Oct12, 2009
-	//if (checkMacResult == MAC_INCORRECT) {
-		//checkMacResult = CheckMacUDP(pAdapt,Packet);
-		//if(checkMacResult == MAC_INCORRECT){
-			//KdPrint(("[passthru] CheckMac: Not Matched!\n"));
-			//NdisMSendComplete(ADAPT_MINIPORT_HANDLE(pAdapt), Packet, NDIS_STATUS_SUCCESS);
+	if (checkMacResult == MAC_INCORRECT) {
+		checkMacResult = CheckMacUDP(pAdapt,Packet);
+		if(checkMacResult == MAC_INCORRECT){
+			KdPrint(("[passthru] CheckMac: Not Matched!\n"));
+			NdisMSendComplete(ADAPT_MINIPORT_HANDLE(pAdapt), Packet, NDIS_STATUS_SUCCESS);
 			
 			continue;
-		//}else{
-			//if(checkMacResult == MAC_CORRECT)
-				//KdPrint(("[passthru] CheckMac: Matched!\n"));
-		//}
+		}else{
+			if(checkMacResult == MAC_CORRECT)
+				KdPrint(("[passthru] CheckMac: Matched!\n"));
+		}
 		
 		
-	//}else{
-		//if(checkMacResult == MAC_CORRECT)
-			//KdPrint(("[passthru] CheckMac: Matched!\n"));
-	//}
+	}else{
+		if(checkMacResult == MAC_CORRECT)
+			KdPrint(("[passthru] CheckMac: Matched!\n"));
+	}
 	
 	//}
 	//KeQuerySystemTime(&current_system_time);
