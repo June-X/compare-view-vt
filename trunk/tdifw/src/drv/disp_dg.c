@@ -237,7 +237,7 @@ tdi_send_datagram(PIRP irp, PIO_STACK_LOCATION irps, struct completion *completi
 	
 
 	//CompareView 12/17/2010
-	//if(remote_port == 10080 || remote_port == 5001){
+	//if(remote_port == 10080){
 	//data = MmGetSystemAddressForMdlSafe(irp->MdlAddress, NormalPagePriority);
 	//if (data != NULL){
 		//log_http_header(ote_addr, (UCHAR *)data, param->SendLength);
