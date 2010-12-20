@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#Description of CompareView
 
 = Introduction =
 This document presents a tutorial on how to compile and install CompareView in Windows XP system. We describe some important files in source codes that are needed for further modification on CompareView later and virus that are used for evaluation experiment. 
@@ -22,4 +22,4 @@ We host source code of CompareView in google host. Use SVN tools to check out th
 # Copy [your source code directory\tdifw\src\drv\objchk_wxp_x86\i386\tdifw_drv.sys] to [C:\Windows\System32\Drivers].
 # Copy [your source code directory\tdifw\src\svc\objchk_wxp_x86\i386\tdifw.exe] to [C:\Windows\System32\].
 # Copy [your source code directory\passthru\objfre_wxp_x86\i386\passthru.sys] to [C:\Windows\System32\Drivers].
-	\item restart Windows.
+# restart Windows.
