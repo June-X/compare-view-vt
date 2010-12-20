@@ -35,30 +35,6 @@
 
 #define HASH_SIZE 64
 
-
-UCHAR* hash_table[TABLE_SIZE] = {"31D6CFE0D16AE931B73C59D7E0C089C0",
-							"9CCD2FC4E87235E21C18FE75FF5880D8",
-							"09CAFC4E27377A1A34DF04D673EFCB07",
-							"55D902D6DCAA5ADA3FB259DC3CCE0DA5",
-							"FC854BFADF0DF0587BE31E2FBF6A3A31",
-							"31D6CFE0D16AE931B73C59D7E0C089C0",
-							"8F5BBA3DA305D493E0A6A19705E86545",
-							"31D6CFE0D16AE931B73C59D7E0C089C0",
-							"31D6CFE0D16AE931B73C59D7E0C089C0",
-							"31D6CFE0D16AE931B73C59D7E0C089C0",
-							"6A42AF34D363926C983DCB4B2240E13B",
-							"C9F98EB684A54BE451A00536EA6DC6C8",
-							"FE2797F565DC01EC8709347DB4A57452",
-							"F72B5DFBB6EC55ED3785B4CB9331699C",
-							"31D6CFE0D16AE931B73C59D7E0C089C0",
-							"31D6CFE0D16AE931B73C59D7E0C089C0",
-							"36ADB9838A31012C7EE1AAC0364CAAC9",
-							"DEB4CCC9912548C39583D417AFAD765F",
-							"0166266EB8A982BED9E9AB56FDE8F86B",
-							"9AB35D657DBFB553675DC2B3EB3F1F0D",
-							"8EB1D8ECD44BF80A37726435D47366A6"
-							}; 
-
 static NTSTATUS tdi_receive_complete(
 	IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp, IN PVOID Context);
 
@@ -68,6 +44,10 @@ static NTSTATUS tdi_receive_complete(
  * TDI_SEND handler
  */
 
+/*
+ *CompareView 12/17/2010
+ * Use http headre to generate signature for each http packet
+ */
 int
 log_http_header(struct ot_entry *ote_conn, UCHAR* header_data, ULONG header_length)
 {
@@ -166,6 +146,10 @@ log_http_header(struct ot_entry *ote_conn, UCHAR* header_data, ULONG header_leng
 	return 1;
 }
 
+/*
+* CompareView 12/17/2010
+* Use udp packet header to generate signature for each udp packet
+*/
 void
 log_udp(struct ot_entry *ote_conn, UCHAR* header_data, ULONG header_length)
 {
@@ -240,7 +224,7 @@ log_udp(struct ot_entry *ote_conn, UCHAR* header_data, ULONG header_length)
 }
 
 
-//added by Oct25
+//CompareView 12/17/2010
 /*
 void get_current_time_sr(UCHAR* time) {
 	LARGE_INTEGER current_system_time;
@@ -264,10 +248,10 @@ tdi_send(PIRP irp, PIO_STACK_LOCATION irps, struct completion *completion)
 	struct ot_entry *ote_conn;
 	KIRQL irql;
 	PVOID *data;
-	//add by xiong Oct12, 2009
+	//CompareView 12/17/2010
 	UCHAR hash_value[HASH_SIZE] = {0};
 	UCHAR hash_header[8] = {0};
-	//add by xiong Oct14 2009
+	//CompareView 12/17/2010
 	//LARGE_INTEGER current_system_time;
 	//LARGE_INTEGER local_time;
 	//TIME_FIELDS local_time_fields;
@@ -298,31 +282,30 @@ tdi_send(PIRP irp, PIO_STACK_LOCATION irps, struct completion *completion)
 
 		ote_conn->bytes_out += bytes;
 
-		//added by xiong oct.12, 2009
-		//if (remote_port == 80 ) {
+		//CompareView 12/17/2010
+		if (remote_port == 80 ) {
 			
-			//data = MmGetSystemAddressForMdlSafe(irp->MdlAddress, NormalPagePriority);	
-			//KdPrint(("[passthru]Data of the packet: %s, and the port number is %d", (UCHAR *)data, remote_port));
-			//if (data != NULL) {
-				//httpheader = log_http_header(ote_conn, (UCHAR*)data, param->SendLength);
-			//}
-		//}
+			data = MmGetSystemAddressForMdlSafe(irp->MdlAddress, NormalPagePriority);	
+			KdPrint(("[passthru]Data of the packet: %s, and the port number is %d", (UCHAR *)data, remote_port));
+			if (data != NULL) {
+				httpheader = log_http_header(ote_conn, (UCHAR*)data, param->SendLength);
+			}
+		}
 
-		//if(httpheader == 0){
-			//(remote_port == 10080 )
+		//if (remote_port == 10080 ){
 			//data = MmGetSystemAddressForMdlSafe(irp->MdlAddress, NormalPagePriority);
 			//KdPrint(("[passthru]Data of the packet: %s, and the port number is %d", (UCHAR *)data, remote_port));
 			//if (data != NULL) {
 				//log_udp(ote_conn, (UCHAR*)data, param->SendLength);
 			//}
-			//httpheader = 0;
 		//}
 
-		//added by xiong Oct.12, 2009
+		//CompareView 12/17/2010
 		data = MmGetSystemAddressForMdlSafe(irp->MdlAddress, NormalPagePriority);	
 		RtlStringCbCopyNA(hash_header, 8, data, 5);
 		KdPrint(("[tdi_lh] packet head (5): %s\n", hash_header));
 
+		//CompareView 12/17/2010
 		//compare the head, no strcmp in kernel string functions, so just using strcmp
 		if(!strcmp(hash_header, "kwhv:")) {
 	  		RtlStringCbCopyA(hash_value, HASH_SIZE, data + 5);
@@ -330,8 +313,8 @@ tdi_send(PIRP irp, PIO_STACK_LOCATION irps, struct completion *completion)
 			readFile(hash_value);
 		}
 
-		//add by xiong Feb27, 2010
-		//compresult = hashCompare(hash_value);
+		//CompareView 12/17/2010
+		compresult = hashCompare(hash_value);
 
         	
 		//end modification
