@@ -1,0 +1,1 @@
+This project includes code for CompareView, and docs for introducation
